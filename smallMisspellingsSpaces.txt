@@ -1,0 +1,9 @@
+lyon ,    lion
+chimpanze,chimpanzee
+gose,goose
+   Tigger,tiger
+ tigger, TRIGGER
+palabar, palabra
+ho, hola
+ho, hoy
+ho, hora
