@@ -6,18 +6,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * El diccionario maneja todas las palabras conocidas.
- * El diccionario es case insensitive
- *
- * Una palabra "válida" es una secuencia de letras (determinado por Character.isLetter)
+ * El diccionario es case insensitive 
+ * 
+ * Una palabra "válida" es una secuencia de letras (determinado por Character.isLetter) 
  * o apostrofes.
  */
-public class Dictionary {
-	private Set<String> dictionary;
+public class DictionaryTrie {
+	private Trie dictionary;
 	/**
 	 * Construye un diccionario usando un TokenScanner
 	 * <p>
@@ -30,15 +28,15 @@ public class Dictionary {
 	 * @throws IOException Error leyendo el archivo
 	 * @throws IllegalArgumentException el TokenScanner es null
 	 */
-	public Dictionary(TokenScanner ts) throws IOException {
+	public DictionaryTrie(TokenScanner ts) {
 		if (ts == null) {
 			throw new IllegalArgumentException("TokenScanner es null");
 		}
-		this.dictionary = new HashSet<>();
+		this.dictionary = new Trie();
 		while (ts.hasNext()) {
 			String token = ts.next();
 			if (TokenScanner.isWord(token)) {
-				this.dictionary.add(token.toLowerCase());
+				this.dictionary.addWord(token.toLowerCase());
 			}
 		}
 	}
@@ -47,26 +45,26 @@ public class Dictionary {
 	 * Construye un diccionario usando un archivo.
 	 *
 	 *
-	 * @param filename
+	 * @param filename 
 	 * @throws FileNotFoundException si el archivo no existe
 	 * @throws IOException Error leyendo el archivo
 	 */
-	public static Dictionary make(String filename) throws IOException {
+	public static DictionaryTrie make(String filename) throws IOException {
 		Reader r = new FileReader(filename);
-		Dictionary d = new Dictionary(new TokenScanner(r));
+		DictionaryTrie d = new DictionaryTrie(new TokenScanner(r));
 		r.close();
 		return d;
 	}
 
 	/**
 	 * Retorna el número de palabras correctas en el diccionario.
-	 * Recuerde que como es case insensitive si Dogs y doGs están en el
+	 * Recuerde que como es case insensitive si Dogs y doGs están en el 
 	 * diccionario, cuentan como una sola palabra.
-	 *
+	 * 
 	 * @return número de palabras únicas
 	 */
 	public int getNumWords() {
-		return this.dictionary.size();
+		return this.dictionary.getUniqueWords();
 	}
 
 	/**
@@ -77,7 +75,7 @@ public class Dictionary {
 	 *
 	 *Llamar a este método no debe reabrir el archivo de palabras.
 	 *
-	 * @param word verifica si la palabra está en el diccionario.
+	 * @param word verifica si la palabra está en el diccionario. 
 	 * Asuma que todos los espacios en blanco antes y despues de la palabra fueron removidos.
 	 * @return si la palabra está en el diccionario.
 	 */
@@ -85,6 +83,6 @@ public class Dictionary {
 		if (word == null) {
 			return false;
 		}
-		return this.dictionary.contains(word.toLowerCase()) ;
+		return this.dictionary.isWord(word.toLowerCase()) ;
 	}
 }

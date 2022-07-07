@@ -1,9 +1,12 @@
 package edu.isistan.spellchecker.corrector.impl;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.isistan.spellchecker.corrector.Corrector;
 import edu.isistan.spellchecker.corrector.Dictionary;
+import edu.isistan.spellchecker.tokenizer.TokenScanner;
+
 /**
  * Este corrector sugiere correciones cuando dos letras adyacentes han sido cambiadas.
  * <p>
@@ -17,6 +20,8 @@ import edu.isistan.spellchecker.corrector.Dictionary;
  */
 public class SwapCorrector extends Corrector {
 
+	private final Dictionary dictionary;
+
 	/**
 	 * Construcye el SwapCorrector usando un Dictionary.
 	 *
@@ -24,7 +29,10 @@ public class SwapCorrector extends Corrector {
 	 * @throws IllegalArgumentException si el diccionario provisto es null
 	 */
 	public SwapCorrector(Dictionary dict) {
-
+		if (dict == null) {
+			throw new IllegalArgumentException("El diccionario es null");
+		}
+		this.dictionary = dict;
 	}
 
 	/**
@@ -45,7 +53,21 @@ public class SwapCorrector extends Corrector {
 	 * @return retorna un conjunto (potencialmente vacío) de sugerencias.
 	 * @throws IllegalArgumentException si la entrada no es una palabra válida 
 	 */
+
 	public Set<String> getCorrections(String wrong) {
-		return null;
+		if (!TokenScanner.isWord(wrong)) {
+			throw new IllegalArgumentException("La entrada no es una palabra valida");
+		}
+		Set<String> swaps = new LinkedHashSet<>();
+		for (int index = 0; index < wrong.length() - 1; index++) {
+			StringBuilder stringBuilder = new StringBuilder(wrong);
+			stringBuilder.setCharAt(index, wrong.charAt(index + 1));
+			stringBuilder.setCharAt(index + 1, wrong.charAt(index));
+			String swap = stringBuilder.toString();
+			if (this.dictionary.isWord(swap)) {
+				swaps.add(swap);
+			}
+		}
+		return this.matchCase(wrong, swaps);
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 import edu.isistan.spellchecker.corrector.Corrector;
 import edu.isistan.spellchecker.corrector.Dictionary;
+import edu.isistan.spellchecker.tokenizer.TokenScanner;
 
 /**
  * El SpellChecker usa un Dictionary, un Corrector, and I/O para chequear
@@ -30,6 +31,7 @@ import edu.isistan.spellchecker.corrector.Dictionary;
 public class SpellChecker {
 	private Corrector corr;
 	private Dictionary dict;
+	private static final int DEFAULT_OPTIONS = 2;
 
 	/**
 	 * Constructor del SpellChecker
@@ -89,7 +91,20 @@ public class SpellChecker {
 	 */
 	public void checkDocument(Reader in, InputStream input, Writer out) throws IOException {
 		Scanner sc = new Scanner(input);
-
-		// STUB
+		TokenScanner tokenScanner = new TokenScanner(in);
+		while (tokenScanner.hasNext()) {
+			String word = tokenScanner.next();
+			if (TokenScanner.isWord(word) && !this.dict.isWord(word)) {
+				List<String> corrections = List.copyOf(this.corr.getCorrections(word));
+				int option = getNextInt(0, DEFAULT_OPTIONS + corrections.size(), sc);
+				if (option == 1) {
+					word = getNextString(sc);
+				}
+				if (option > 1) {
+					word = corrections.get(option - DEFAULT_OPTIONS);
+				}
+			}
+			out.write(word);
+		}
 	}
 }

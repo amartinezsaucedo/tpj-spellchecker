@@ -1,8 +1,9 @@
 package edu.isistan.spellchecker.corrector.impl;
 
-import java.util.Set;
+import java.util.*;
 
 import edu.isistan.spellchecker.corrector.Corrector;
+import edu.isistan.spellchecker.tokenizer.TokenScanner;
 
 import java.io.*;
 
@@ -20,6 +21,8 @@ public class FileCorrector extends Corrector {
 			super(msg);
 		}
 	}
+
+	private Map<String, Set<String>> suggestionDictionary;
 
 
 	/**
@@ -78,7 +81,23 @@ public class FileCorrector extends Corrector {
 	 * @throws IllegalArgumentException reader es null
 	 */
 	public FileCorrector(Reader r) throws IOException, FormatException {
-
+		if (r == null) {
+			throw new IllegalArgumentException("El reader es null");
+		}
+		this.suggestionDictionary = new HashMap<>();
+		BufferedReader reader = new BufferedReader(r);
+		String line;
+		while ((line = reader.readLine()) != null) {
+			String[] lineWords = line.split(",");
+			if (lineWords.length != 2) {
+				throw new FileCorrector.FormatException("Error de formato");
+			}
+			String misspelledWord = lineWords[0].trim().toLowerCase();
+			String correctedWord = lineWords[1].trim();
+			Set<String> suggestions = this.suggestionDictionary.getOrDefault(misspelledWord, new LinkedHashSet<>());
+			suggestions.add(correctedWord);
+			this.suggestionDictionary.put(misspelledWord, suggestions);
+		}
 	}
 
 	/** Construye el Filereader.
@@ -110,6 +129,9 @@ public class FileCorrector extends Corrector {
 	 * @throws IllegalArgumentException si la entrada no es una palabra válida 
 	 */
 	public Set<String> getCorrections(String wrong) {
-		return null;
+		if (!TokenScanner.isWord(wrong)) {
+			throw new IllegalArgumentException("La entrada no es una palabra valida");
+		}
+		return this.matchCase(wrong, suggestionDictionary.getOrDefault(wrong.toLowerCase(), new LinkedHashSet<>()));
 	}
 }

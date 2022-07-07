@@ -1,5 +1,5 @@
 package edu.isistan.spellchecker.corrector.impl;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.isistan.spellchecker.corrector.Corrector;
@@ -24,7 +24,7 @@ import edu.isistan.spellchecker.corrector.Dictionary;
  */
 public class Levenshtein extends Corrector {
 
-
+	private Dictionary dictionary;
 	/**
 	 * Construye un Levenshtein Corrector usando un Dictionary.
 	 * Debe arrojar <code>IllegalArgumentException</code> si el diccionario es null.
@@ -32,7 +32,10 @@ public class Levenshtein extends Corrector {
 	 * @param dict
 	 */
 	public Levenshtein(Dictionary dict) {
-		throw new UnsupportedOperationException(); // STUB
+		if (dict == null) {
+			throw new IllegalArgumentException("El diccionario es null");
+		}
+		this.dictionary = dict;
 	}
 
 	/**
@@ -40,7 +43,13 @@ public class Levenshtein extends Corrector {
 	 * @return todas las palabras a erase distance uno
 	 */
 	Set<String> getDeletions(String s) {
-		throw new UnsupportedOperationException(); // STUB
+		Set<String> deletions = new LinkedHashSet<>();
+		if (s.length() > 1) {
+			for (int index = 0; index < s.length(); index++) {
+				deletions.add(new StringBuilder(s).deleteCharAt(index).toString());
+			}
+		}
+		return deletions;
 	}
 
 	/**
@@ -48,7 +57,18 @@ public class Levenshtein extends Corrector {
 	 * @return todas las palabras a substitution distance uno
 	 */
 	public Set<String> getSubstitutions(String s) {
-		throw new UnsupportedOperationException(); // STUB
+		Set<String> substitutions = new LinkedHashSet<>();
+		for (int index = 0; index < s.length(); index++) {
+			StringBuilder stringBuilder = new StringBuilder(s);
+			for (char letter = 'a'; letter <= 'z'; letter++) {
+				stringBuilder.setCharAt(index, letter);
+				String candidate = stringBuilder.toString();
+				if (!candidate.equals(s) && this.dictionary.isWord(candidate)) {
+					substitutions.add(candidate);
+				}
+			}
+		}
+		return substitutions;
 	}
 
 
@@ -57,10 +77,28 @@ public class Levenshtein extends Corrector {
 	 * @return todas las palabras a insert distance uno
 	 */
 	public Set<String> getInsertions(String s) {
-		throw new UnsupportedOperationException(); // STUB
+		Set<String> insertions = new LinkedHashSet<>();
+		for (int index = 0; index <= s.length(); index++) {
+			for (char letter = 'a'; letter <= 'z'; letter++) {
+				StringBuilder stringBuilder = new StringBuilder(s);
+				stringBuilder.insert(index, letter);
+				String candidate = stringBuilder.toString();
+				if (this.dictionary.isWord(candidate)) {
+					insertions.add(candidate);
+				}
+			}
+		}
+		return insertions;
 	}
 
 	public Set<String> getCorrections(String wrong) {
-		throw new UnsupportedOperationException(); // STUB
+		if (wrong == null) {
+			throw new IllegalArgumentException("Word is null");
+		}
+		Set<String> corrections = new LinkedHashSet<>();
+		corrections.addAll(this.getDeletions(wrong));
+		corrections.addAll(this.getSubstitutions(wrong));
+		corrections.addAll(this.getInsertions(wrong));
+		return this.matchCase(wrong, corrections);
 	}
 }
