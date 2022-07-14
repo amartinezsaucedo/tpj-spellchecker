@@ -28,7 +28,7 @@ public class TokenScanner implements Iterator<String> {
     if (in == null) {
       throw new IllegalArgumentException("El Reader provisto es null");
     }
-    this.tokens = new ArrayList<>();
+    this.tokens = new LinkedList<>();
     this.reader = new BufferedReader(in);
     this.readInput();
   }
@@ -64,7 +64,7 @@ public class TokenScanner implements Iterator<String> {
         candidateWord = String.valueOf(buffer[leftIndex]);
         if (isWord(candidateWord) || this.tokens.isEmpty()) { // Si es palabra, la agregamos
           this.tokens.add(candidateWord);
-        } else { // ... si no, lo concatenamos la última palabra agregada (saltos de linea)
+        } else { // ... si no, lo concatenamos a la última palabra agregada (saltos de línea)
           String lastWord = this.tokens.remove(this.tokens.size() - 1);
           this.tokens.add(lastWord.concat(candidateWord));
         }

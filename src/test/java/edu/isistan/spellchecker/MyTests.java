@@ -39,6 +39,19 @@ public class MyTests {
             assertTrue(TokenScanner.isWord(token));
             assertFalse("reached end of stream", d.hasNext());
         }
+        Reader in2 = new StringReader("Hello!!!\n123456");
+        try (in2) {
+            TokenScanner d2 = new TokenScanner(in2);
+            assertTrue("has next", d2.hasNext());
+            String token = d2.next();
+            assertEquals("Hello", token);
+            assertTrue(TokenScanner.isWord(token));
+            assertTrue(d2.hasNext());
+            token = d2.next();
+            assertEquals("!!!\n123456", token);
+            assertFalse(TokenScanner.isWord(token));
+            assertFalse("reached end of stream", d2.hasNext());
+        }
     }
 
     @Test public void oneTokenIsNotWord() throws IOException {
@@ -50,6 +63,22 @@ public class MyTests {
             assertEquals("\n", token);
             assertFalse(TokenScanner.isWord(token));
             assertFalse("reached end of stream", d.hasNext());
+        }
+        Reader in2 = new StringReader("Hello!!!\n123456\nWorld");
+        try (in2) {
+            TokenScanner d2 = new TokenScanner(in2);
+            assertTrue("has next", d2.hasNext());
+            String token = d2.next();
+            assertEquals("Hello", token);
+            assertTrue(TokenScanner.isWord(token));
+            assertTrue(d2.hasNext());
+            token = d2.next();
+            assertEquals("!!!\n123456\n", token);
+            assertFalse(TokenScanner.isWord(token));
+            token = d2.next();
+            assertEquals("World", token);
+            assertTrue(TokenScanner.isWord(token));
+            assertFalse("reached end of stream", d2.hasNext());
         }
     }
 
