@@ -140,12 +140,12 @@ public class MyTests {
 
     @Test(timeout=500) public void testDictionaryContainsWord() throws IOException {
         Dictionary d = new Dictionary(new TokenScanner(new FileReader("smallDictionary.txt")));
-        assertTrue("'apple' -> should be true ('heh' in file)", d.isWord("heh"));
+        assertTrue("'Heh' -> should be true ('heh' in file)", d.isWord("Heh"));
     }
 
     @Test(timeout=500) public void testDictionaryDoesNotContainWord() throws IOException {
         Dictionary d = new Dictionary(new TokenScanner(new FileReader("smallDictionary.txt")));
-        assertFalse("'apple' -> should be false ('ana' not in file)", d.isWord("ana"));
+        assertFalse("'Ana' -> should be false ('ana' not in file)", d.isWord("ana"));
     }
 
     @Test(timeout=500) public void testDictionaryWordCount() throws IOException {
