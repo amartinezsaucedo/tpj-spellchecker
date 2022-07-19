@@ -9,8 +9,8 @@ import edu.isistan.spellchecker.corrector.Dictionary;
  *
  * Un corrector inteligente que utiliza "edit distance" para generar correcciones.
  * 
- * La distancia de Levenshtein es el número minimo de ediciones que se deber
- * realizar a un string para igualarlo a otro. Por edición se entiende:
+ * La distancia de Levenshtein es el nï¿½mero minimo de ediciones que se deber
+ * realizar a un string para igualarlo a otro. Por ediciï¿½n se entiende:
  * <ul>
  * <li> insertar una letra
  * <li> borrar una letra
@@ -18,7 +18,7 @@ import edu.isistan.spellchecker.corrector.Dictionary;
  * </ul>
  *
  * Una "letra" es un caracter a-z (no contar los apostrofes).
- * Intercambiar letras (thsi -> this) <it>no</it> cuenta como una edición.
+ * Intercambiar letras (thsi -> this) <it>no</it> cuenta como una ediciï¿½n.
  * <p>
  * Este corrector sugiere palabras que esten a edit distance uno.
  */
@@ -46,7 +46,10 @@ public class Levenshtein extends Corrector {
 		Set<String> deletions = new LinkedHashSet<>();
 		if (s.length() > 1) {
 			for (int index = 0; index < s.length(); index++) {
-				deletions.add(new StringBuilder(s).deleteCharAt(index).toString());
+				String candidate = new StringBuilder(s).deleteCharAt(index).toString();
+				if (this.dictionary.isWord(candidate)) {
+					deletions.add(candidate);
+				}
 			}
 		}
 		return deletions;
