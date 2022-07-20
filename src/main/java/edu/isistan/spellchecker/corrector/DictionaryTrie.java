@@ -14,7 +14,7 @@ import java.io.Reader;
  * Una palabra "válida" es una secuencia de letras (determinado por Character.isLetter) 
  * o apostrofes.
  */
-public class DictionaryTrie {
+public class DictionaryTrie extends Dictionary{
 	private Trie dictionary;
 	/**
 	 * Construye un diccionario usando un TokenScanner
@@ -28,13 +28,15 @@ public class DictionaryTrie {
 	 * @throws IOException Error leyendo el archivo
 	 * @throws IllegalArgumentException el TokenScanner es null
 	 */
-	public DictionaryTrie(TokenScanner ts) {
-		if (ts == null) {
-			throw new IllegalArgumentException("TokenScanner es null");
-		}
+	public DictionaryTrie(TokenScanner ts) throws IOException {
+		super(ts);
+	}
+
+	@Override
+	protected void doInitializeDictionary(TokenScanner tokenScanner) {
 		this.dictionary = new Trie();
-		while (ts.hasNext()) {
-			String token = ts.next();
+		while (tokenScanner.hasNext()) {
+			String token = tokenScanner.next();
 			if (TokenScanner.isWord(token)) {
 				this.dictionary.addWord(token.toLowerCase());
 			}
@@ -63,6 +65,7 @@ public class DictionaryTrie {
 	 * 
 	 * @return número de palabras únicas
 	 */
+	@Override
 	public int getNumWords() {
 		return this.dictionary.getUniqueWords();
 	}
@@ -79,6 +82,7 @@ public class DictionaryTrie {
 	 * Asuma que todos los espacios en blanco antes y despues de la palabra fueron removidos.
 	 * @return si la palabra está en el diccionario.
 	 */
+	@Override
 	public boolean isWord(String word) {
 		if (word == null) {
 			return false;

@@ -34,9 +34,13 @@ public class Dictionary {
 		if (ts == null) {
 			throw new IllegalArgumentException("TokenScanner es null");
 		}
+		this.doInitializeDictionary(ts);
+	}
+
+	protected void doInitializeDictionary(TokenScanner tokenScanner) {
 		this.dictionary = new HashSet<>();
-		while (ts.hasNext()) {
-			String token = ts.next();
+		while (tokenScanner.hasNext()) {
+			String token = tokenScanner.next();
 			if (TokenScanner.isWord(token)) {
 				this.dictionary.add(token.toLowerCase());
 			}
