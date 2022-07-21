@@ -4,10 +4,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import edu.isistan.spellchecker.corrector.Corrector;
 import edu.isistan.spellchecker.corrector.Dictionary;
@@ -21,7 +18,7 @@ import edu.isistan.spellchecker.tokenizer.TokenScanner;
  * <p>
  * Nota:
  * <ul>
- * <li> La implementación provista provee métodos utiles para implementar el SpellChecker.
+ * <li> La implementaciï¿½n provista provee mï¿½todos utiles para implementar el SpellChecker.
  * <li> Toda la salida al usuario deben enviarse a System.out (salida estandar)
  * </ul>
  * <p>
@@ -45,8 +42,8 @@ public class SpellChecker {
 	}
 
 	/**
-	 * Returna un entero desde el Scanner provisto. El entero estará en el rango [min, max].
-	 * Si no se ingresa un entero o este está fuera de rango, repreguntará.
+	 * Returna un entero desde el Scanner provisto. El entero estarï¿½ en el rango [min, max].
+	 * Si no se ingresa un entero o este estï¿½ fuera de rango, repreguntarï¿½.
 	 *
 	 * @param min
 	 * @param max
@@ -87,7 +84,7 @@ public class SpellChecker {
 	 * @param in stream donde se encuentra el documento de entrada.
 	 * @param input entrada interactiva del usuario. Por ejemplo, entrada estandar System.in
 	 * @param out stream donde se escribe el documento de salida.
-	 * @throws IOException si se produce algún error leyendo el documento.
+	 * @throws IOException si se produce algï¿½n error leyendo el documento.
 	 */
 	public void checkDocument(Reader in, InputStream input, Writer out) throws IOException {
 		Scanner sc = new Scanner(input);
@@ -95,13 +92,16 @@ public class SpellChecker {
 		while (tokenScanner.hasNext()) {
 			String word = tokenScanner.next();
 			if (TokenScanner.isWord(word) && !this.dict.isWord(word)) {
-				List<String> corrections = List.copyOf(this.corr.getCorrections(word));
+				Set<String> corrections = this.corr.getCorrections(word);
 				int option = getNextInt(0, DEFAULT_OPTIONS + corrections.size(), sc);
 				if (option == 1) {
 					word = getNextString(sc);
 				}
 				if (option > 1) {
-					word = corrections.get(option - DEFAULT_OPTIONS);
+					Iterator<String> correctionsIterator = corrections.iterator();
+					for (int index = DEFAULT_OPTIONS; index <= option && correctionsIterator.hasNext(); index++) {
+						word = correctionsIterator.next();
+					}
 				}
 			}
 			out.write(word);
