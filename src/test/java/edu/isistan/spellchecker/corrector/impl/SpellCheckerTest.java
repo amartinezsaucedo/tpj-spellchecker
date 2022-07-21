@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-
+import java.util.concurrent.TimeUnit;
 
 
 import org.junit.Test;
@@ -22,6 +22,11 @@ import edu.isistan.spellchecker.corrector.Corrector;
 import edu.isistan.spellchecker.corrector.Dictionary;
 import edu.isistan.spellchecker.corrector.impl.FileCorrector;
 import edu.isistan.spellchecker.corrector.impl.SwapCorrector;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.infra.Blackhole;
 
 
 public class SpellCheckerTest {
@@ -74,12 +79,20 @@ public class SpellCheckerTest {
 	}
 
 
-	@Test(timeout=500) public void testCheckGettysburgSwap() throws IOException, FileCorrector.FormatException {
+	@Benchmark
+	@BenchmarkMode(Mode.All)
+	@OutputTimeUnit(TimeUnit.MILLISECONDS)
+	public void measureName(Blackhole bh) throws IOException, FileCorrector.FormatException {
+		bh.consume(testCheckGettysburgSwap());
+	}
+
+	@Test(timeout=500) public Object testCheckGettysburgSwap() throws IOException, FileCorrector.FormatException {
 		// Use the SwapCorrector instead!
 		spellCheckFiles("dictionary.txt",60822,null,
 				"Gettysburg.txt","Gettysburg-out.txt",
 				"Gettysburg_input.txt");
 		compareDocs("Gettysburg-out.txt", "Gettysburg_expected_output.txt");
+		return new Object();
 	}
 
 

@@ -7,11 +7,17 @@ import edu.isistan.spellchecker.corrector.impl.FileCorrector;
 import edu.isistan.spellchecker.corrector.impl.SwapCorrector;
 import edu.isistan.spellchecker.tokenizer.TokenScanner;
 import org.junit.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -340,12 +346,13 @@ public class MyTests {
     }
 
     @Test(timeout = 500)
-    public void testCheckGettysburgSwapTrie() throws IOException, FileCorrector.FormatException {
+    public Object testCheckGettysburgSwapTrie() throws IOException, FileCorrector.FormatException {
         // Use the SwapCorrector instead!
         spellCheckFilesTrie("dictionary.txt", 60822, null,
                 "Gettysburg.txt", "Gettysburg-out.txt",
                 "Gettysburg_input.txt");
         compareDocs("Gettysburg-out.txt", "Gettysburg_expected_output.txt");
+        return new Object();
     }
 
 
@@ -365,5 +372,11 @@ public class MyTests {
                 fail("Expected more lines, but found end of file in the output. ");
             }
         }
+    }
+    @Benchmark
+    @BenchmarkMode(Mode.All)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    public void measureName(Blackhole bh) throws IOException, FileCorrector.FormatException {
+        bh.consume(testCheckGettysburgSwapTrie());
     }
 }

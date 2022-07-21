@@ -4,10 +4,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import edu.isistan.spellchecker.corrector.Corrector;
 import edu.isistan.spellchecker.corrector.Dictionary;
@@ -95,13 +92,16 @@ public class SpellChecker {
 		while (tokenScanner.hasNext()) {
 			String word = tokenScanner.next();
 			if (TokenScanner.isWord(word) && !this.dict.isWord(word)) {
-				List<String> corrections = List.copyOf(this.corr.getCorrections(word));
+				Set<String> corrections = this.corr.getCorrections(word);
 				int option = getNextInt(0, DEFAULT_OPTIONS + corrections.size(), sc);
 				if (option == 1) {
 					word = getNextString(sc);
 				}
 				if (option > 1) {
-					word = corrections.get(option - DEFAULT_OPTIONS);
+					Iterator<String> correctionsIterator = corrections.iterator();
+					for (int index = DEFAULT_OPTIONS; index <= option && correctionsIterator.hasNext(); index++) {
+						word = correctionsIterator.next();
+					}
 				}
 			}
 			out.write(word);
