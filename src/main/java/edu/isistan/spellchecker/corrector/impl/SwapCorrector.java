@@ -10,7 +10,7 @@ import edu.isistan.spellchecker.tokenizer.TokenScanner;
 /**
  * Este corrector sugiere correciones cuando dos letras adyacentes han sido cambiadas.
  * <p>
- * Un error común es cambiar las letras de orden, e.g.
+ * Un error comï¿½n es cambiar las letras de orden, e.g.
  * "with" -> "wiht". Este corrector intenta dectectar palabras con exactamente un swap.
  * <p>
  * Por ejemplo, si la palabra mal escrita es "haet", se debe sugerir
@@ -39,7 +39,7 @@ public class SwapCorrector extends Corrector {
 	 * 
 	 * Este corrector sugiere correciones cuando dos letras adyacentes han sido cambiadas.
 	 * <p>
-	 * Un error común es cambiar las letras de orden, e.g.
+	 * Un error comï¿½n es cambiar las letras de orden, e.g.
 	 * "with" -> "wiht". Este corrector intenta dectectar palabras con exactamente un swap.
 	 * <p>
 	 * Por ejemplo, si la palabra mal escrita es "haet", se debe sugerir
@@ -50,8 +50,8 @@ public class SwapCorrector extends Corrector {
 	 * Ver superclase.
 	 *
 	 * @param wrong 
-	 * @return retorna un conjunto (potencialmente vacío) de sugerencias.
-	 * @throws IllegalArgumentException si la entrada no es una palabra válida 
+	 * @return retorna un conjunto (potencialmente vacï¿½o) de sugerencias.
+	 * @throws IllegalArgumentException si la entrada no es una palabra vï¿½lida 
 	 */
 
 	public Set<String> getCorrections(String wrong) {
@@ -59,15 +59,26 @@ public class SwapCorrector extends Corrector {
 			throw new IllegalArgumentException("La entrada no es una palabra valida");
 		}
 		Set<String> swaps = new LinkedHashSet<>();
-		for (int index = 0; index < wrong.length() - 1; index++) {
-			StringBuilder stringBuilder = new StringBuilder(wrong);
-			stringBuilder.setCharAt(index, wrong.charAt(index + 1));
-			stringBuilder.setCharAt(index + 1, wrong.charAt(index));
-			String swap = stringBuilder.toString();
-			if (this.dictionary.isWord(swap)) {
-				swaps.add(swap);
+		Set<String> suggestions = this.dictionary.getSimilarWords(wrong);
+		for (String suggestion : suggestions) {
+			if (isSwap(suggestion, wrong.toLowerCase())) {
+				swaps.add(suggestion);
 			}
 		}
 		return this.matchCase(wrong, swaps);
+	}
+
+	private boolean isSwap(String suggestion, String wrong) {
+		int suggestionLength = suggestion.length();
+		int wrongLength = wrong.length();
+		if (suggestionLength != wrongLength) {
+			return false;
+		}
+		for (int i = 0; i < suggestion.length() - 1; i++) {
+			if (suggestion.charAt(i) != wrong.charAt(i) && ((suggestion.charAt(i) == wrong.charAt(i + 1) && wrong.charAt(i) == suggestion.charAt(i + 1)))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -24,6 +24,7 @@ import edu.isistan.spellchecker.corrector.Dictionary;
  */
 public class Levenshtein extends Corrector {
 
+	private static final int MAXIMUM_EDIT_DISTANCE = 1;
 	private Dictionary dictionary;
 	/**
 	 * Construye un Levenshtein Corrector usando un Dictionary.
@@ -94,14 +95,42 @@ public class Levenshtein extends Corrector {
 		return insertions;
 	}
 
-	public Set<String> getCorrections(String wrong) {
-		if (wrong == null) {
-			throw new IllegalArgumentException("Word is null");
-		}
-		Set<String> corrections = new LinkedHashSet<>();
-		corrections.addAll(this.getDeletions(wrong));
-		corrections.addAll(this.getSubstitutions(wrong));
-		corrections.addAll(this.getInsertions(wrong));
-		return this.matchCase(wrong, corrections);
-	}
+    public Set<String> getCorrections(String wrong) {
+        if (wrong == null) {
+            throw new IllegalArgumentException("Word is null");
+        }
+        Set<String> corrections = new LinkedHashSet<>();
+        Set<String> suggestions = this.dictionary.getSimilarWords(wrong.toLowerCase());
+        if (suggestions.isEmpty()) {
+            corrections.addAll(this.getDeletions(wrong));
+            corrections.addAll(this.getSubstitutions(wrong));
+            corrections.addAll(this.getInsertions(wrong));
+        } else {
+            for (String suggestion : suggestions) {
+                if (calculateDistance(suggestion, wrong) <= MAXIMUM_EDIT_DISTANCE) {
+                    corrections.add(suggestion);
+                }
+            }
+        }
+        return this.matchCase(wrong, corrections);
+    }
+
+    private int calculateDistance(String x, String y) {
+        int[][] distanceMatrix = new int[x.length() + 1][y.length() + 1];
+        for (int i = 0; i <= x.length(); i++) {
+            for (int j = 0; j <= y.length(); j++) {
+                if (i == 0) {
+                    distanceMatrix[i][j] = j;
+                } else if (j == 0) {
+                    distanceMatrix[i][j] = i;
+                } else {
+                    distanceMatrix[i][j] = Math.min(Math.min(distanceMatrix[i - 1][j - 1]
+                                            + (x.charAt(i - 1) == y.charAt(j - 1) ? 0 : 1),
+                                    distanceMatrix[i - 1][j] + 1),
+                            distanceMatrix[i][j - 1] + 1);
+                }
+            }
+        }
+        return distanceMatrix[x.length()][y.length()];
+    }
 }

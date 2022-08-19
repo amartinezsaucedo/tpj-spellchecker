@@ -11,7 +11,7 @@ import java.io.Reader;
  * El diccionario maneja todas las palabras conocidas.
  * El diccionario es case insensitive 
  * 
- * Una palabra "válida" es una secuencia de letras (determinado por Character.isLetter) 
+ * Una palabra "vï¿½lida" es una secuencia de letras (determinado por Character.isLetter) 
  * o apostrofes.
  */
 public class DictionaryTrie extends Dictionary{
@@ -19,8 +19,8 @@ public class DictionaryTrie extends Dictionary{
 	/**
 	 * Construye un diccionario usando un TokenScanner
 	 * <p>
-	 * Una palabra válida es una secuencia de letras (ver Character.isLetter) o apostrofes.
-	 * Toda palabra no válida se debe ignorar
+	 * Una palabra vï¿½lida es una secuencia de letras (ver Character.isLetter) o apostrofes.
+	 * Toda palabra no vï¿½lida se debe ignorar
 	 *
 	 * <p>
 	 *
@@ -36,9 +36,10 @@ public class DictionaryTrie extends Dictionary{
 	protected void doInitializeDictionary(TokenScanner tokenScanner) {
 		this.dictionary = new Trie();
 		while (tokenScanner.hasNext()) {
-			String token = tokenScanner.next();
+			String token = tokenScanner.next().toLowerCase();
 			if (TokenScanner.isWord(token)) {
-				this.dictionary.addWord(token.toLowerCase());
+				this.insertInLSH(token);
+				this.dictionary.addWord(token);
 			}
 		}
 	}
@@ -59,11 +60,11 @@ public class DictionaryTrie extends Dictionary{
 	}
 
 	/**
-	 * Retorna el número de palabras correctas en el diccionario.
-	 * Recuerde que como es case insensitive si Dogs y doGs están en el 
+	 * Retorna el nï¿½mero de palabras correctas en el diccionario.
+	 * Recuerde que como es case insensitive si Dogs y doGs estï¿½n en el 
 	 * diccionario, cuentan como una sola palabra.
 	 * 
-	 * @return número de palabras únicas
+	 * @return nï¿½mero de palabras ï¿½nicas
 	 */
 	@Override
 	public int getNumWords() {
@@ -71,16 +72,16 @@ public class DictionaryTrie extends Dictionary{
 	}
 
 	/**
-	 * Testea si una palabra es parte del diccionario. Si la palabra no está en
+	 * Testea si una palabra es parte del diccionario. Si la palabra no estï¿½ en
 	 * el diccionario debe retornar false. null debe retornar falso.
-	 * Si en el diccionario está la palabra Dog y se pregunta por la palabra dog
+	 * Si en el diccionario estï¿½ la palabra Dog y se pregunta por la palabra dog
 	 * debe retornar true, ya que es case insensitive.
 	 *
-	 *Llamar a este método no debe reabrir el archivo de palabras.
+	 *Llamar a este mï¿½todo no debe reabrir el archivo de palabras.
 	 *
-	 * @param word verifica si la palabra está en el diccionario. 
+	 * @param word verifica si la palabra estï¿½ en el diccionario. 
 	 * Asuma que todos los espacios en blanco antes y despues de la palabra fueron removidos.
-	 * @return si la palabra está en el diccionario.
+	 * @return si la palabra estï¿½ en el diccionario.
 	 */
 	@Override
 	public boolean isWord(String word) {
