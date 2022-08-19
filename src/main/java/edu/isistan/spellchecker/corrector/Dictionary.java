@@ -1,5 +1,8 @@
 package edu.isistan.spellchecker.corrector;
 
+import edu.isistan.spellchecker.lsh.MinHash;
+import edu.isistan.spellchecker.lsh.MinHashLSH;
+import edu.isistan.spellchecker.lsh.NGram;
 import edu.isistan.spellchecker.tokenizer.TokenScanner;
 
 import java.io.FileNotFoundException;
@@ -13,16 +16,18 @@ import java.util.Set;
  * El diccionario maneja todas las palabras conocidas.
  * El diccionario es case insensitive
  *
- * Una palabra "válida" es una secuencia de letras (determinado por Character.isLetter)
+ * Una palabra "vï¿½lida" es una secuencia de letras (determinado por Character.isLetter)
  * o apostrofes.
  */
 public class Dictionary {
+	private static final int NUMBER_OF_PERMUTATIONS = 64;
 	private Set<String> dictionary;
+	private MinHashLSH lsh;
 	/**
 	 * Construye un diccionario usando un TokenScanner
 	 * <p>
-	 * Una palabra válida es una secuencia de letras (ver Character.isLetter) o apostrofes.
-	 * Toda palabra no válida se debe ignorar
+	 * Una palabra vï¿½lida es una secuencia de letras (ver Character.isLetter) o apostrofes.
+	 * Toda palabra no vï¿½lida se debe ignorar
 	 *
 	 * <p>
 	 *
@@ -34,17 +39,28 @@ public class Dictionary {
 		if (ts == null) {
 			throw new IllegalArgumentException("TokenScanner es null");
 		}
+		this.lsh = new MinHashLSH();
 		this.doInitializeDictionary(ts);
 	}
 
 	protected void doInitializeDictionary(TokenScanner tokenScanner) {
 		this.dictionary = new HashSet<>();
 		while (tokenScanner.hasNext()) {
-			String token = tokenScanner.next();
+			String token = tokenScanner.next().toLowerCase();
 			if (TokenScanner.isWord(token)) {
-				this.dictionary.add(token.toLowerCase());
+				this.insertInLSH(token);
+				this.dictionary.add(token);
 			}
 		}
+	}
+
+	protected void insertInLSH(String token) {
+		MinHash minHash = new MinHash(NUMBER_OF_PERMUTATIONS);
+		Set<String> ngrams = NGram.ngrams(1, token);
+		for (String ngram : ngrams) {
+			minHash.update(ngram);
+		}
+		lsh.insert(token, minHash);
 	}
 
 	/**
@@ -63,32 +79,41 @@ public class Dictionary {
 	}
 
 	/**
-	 * Retorna el número de palabras correctas en el diccionario.
-	 * Recuerde que como es case insensitive si Dogs y doGs están en el
+	 * Retorna el nï¿½mero de palabras correctas en el diccionario.
+	 * Recuerde que como es case insensitive si Dogs y doGs estï¿½n en el
 	 * diccionario, cuentan como una sola palabra.
 	 *
-	 * @return número de palabras únicas
+	 * @return nï¿½mero de palabras ï¿½nicas
 	 */
 	public int getNumWords() {
 		return this.dictionary.size();
 	}
 
 	/**
-	 * Testea si una palabra es parte del diccionario. Si la palabra no está en
+	 * Testea si una palabra es parte del diccionario. Si la palabra no estï¿½ en
 	 * el diccionario debe retornar false. null debe retornar falso.
-	 * Si en el diccionario está la palabra Dog y se pregunta por la palabra dog
+	 * Si en el diccionario estï¿½ la palabra Dog y se pregunta por la palabra dog
 	 * debe retornar true, ya que es case insensitive.
 	 *
-	 *Llamar a este método no debe reabrir el archivo de palabras.
+	 *Llamar a este mï¿½todo no debe reabrir el archivo de palabras.
 	 *
-	 * @param word verifica si la palabra está en el diccionario.
+	 * @param word verifica si la palabra estï¿½ en el diccionario.
 	 * Asuma que todos los espacios en blanco antes y despues de la palabra fueron removidos.
-	 * @return si la palabra está en el diccionario.
+	 * @return si la palabra estï¿½ en el diccionario.
 	 */
 	public boolean isWord(String word) {
 		if (word == null) {
 			return false;
 		}
 		return this.dictionary.contains(word.toLowerCase()) ;
+	}
+
+	public Set<String> getSimilarWords(String misspelledWord) {
+		MinHash queryMinHash = new MinHash(NUMBER_OF_PERMUTATIONS);
+		Set<String> ngrams = NGram.ngrams(1, misspelledWord.toLowerCase());
+		for (String ngram : ngrams) {
+			queryMinHash.update(ngram);
+		}
+		return lsh.query(queryMinHash);
 	}
 }
